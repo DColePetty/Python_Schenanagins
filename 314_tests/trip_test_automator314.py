@@ -30,22 +30,11 @@ def parse_distance(string_input):
     #print("send_list: " + str(distances_list))
     return distances_ints
 
-
-'''
-Process:
-use curl to send the request_file data to the server
-the curl will return into the recieved_data_from_server string the response from the server.
-This response includes the new correctly calculated distances data.
-'''
-
 url = "localhost:8000/api/trip"
 #filename = "trip_json1.json"
 def run_test(file_name):
     request_file = file_name
     recieved_data_from_server = subprocess.check_output(["curl","-d", str("@" + request_file), url]).decode("utf-8")
-    ##check_error_code = subprocess.check_output(["curl","-I", "-d", str("@" + request_file), url]).decode("utf-8")
-    # convert byte response to string
-    #print(recieved_data_from_server)
     ''' response code handling '''
     data1 = open(request_file).read()
     response = requests.post('http://' + str(url), data=data1)
@@ -55,8 +44,6 @@ def run_test(file_name):
 
     test_case_data_file = open(request_file, "r")
     test_case_data = test_case_data_file.read()
-    #print("test_case_data: \n\n" + test_case_data + " \n")
-    #print("\n\n " + recieved_data_from_server[0:25:] + "\n\n")
 
     test_case_data = (parse_distance(test_case_data))
     recieved_data_from_server = parse_distance(recieved_data_from_server)
@@ -70,10 +57,17 @@ def run_test(file_name):
         print("recieved_distances_from_server: \n"  + str(recieved_data_from_server))
         print("test_case_data: \n"  + str(test_case_data))
 
-#run_test(filename)
+'''
+Process:
+use curl to send the request_file data to the server
+the curl will return into the recieved_data_from_server string the response from the server.
+This response includes the new correctly calculated distances data.
+Get the reponse code and check that to make sure it is 200
+iterate through the current directory looking for trip-requests
+
+'''
 
 import os
-from os.path import expanduser
 
 # iterate over the files
 for curr_file in os.listdir():
@@ -83,18 +77,4 @@ for curr_file in os.listdir():
         try:
             run_test(curr_file)
         except Exception as e:
-            print("Test case failed: " + curr_file + "\n\n" + str(e))
-
-    '''
-    # check for directory, call "list" method on it
-    # check for file, check permissions associated with it
-    if os.path.isfile(current_file_or_directory):
-        if os.access(str(current_file_or_directory), os.R_OK):
-            read_allowed_files.append(str(current_file_or_directory))
-        all_files.append(current_file_or_directory)
-        continue
-    elif os.path.isdir(current_file_or_directory):
-        list(current_file_or_directory, depth_of_structure + 1)
-        all_directories.append(current_file_or_directory)
-        continue
-    '''
+            print("Test case failed: " + curr_file + "\n" + str(e))
